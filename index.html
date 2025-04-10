@@ -4,7 +4,7 @@
     <title>Session 13. Logistic regression 2</title>
     <meta charset="utf-8" />
     <meta name="author" content="Wu Zeng, MD, PhD" />
-    <script src="libs/header-attrs-2.18/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.22/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/rladies.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/rladies-fonts.css" rel="stylesheet" />
@@ -34,19 +34,13 @@ class: title-slide, center, middle, inverse
 
 ### Georgetown University
 
-### April 24 2023
+### April 10 2025
 
 ---
 
 # Contents
 
 - Multiple logistic regression
-
-- Variation of independent variables 
-
-  - Interaction term 
-  
-  - square of independent variables
   
 - Test of multiple models
 
@@ -55,8 +49,6 @@ class: title-slide, center, middle, inverse
   - Psudo `\(R^2\)`
   
   - Choice of models
-
-- Prediction
 
 ---
 
@@ -87,6 +79,28 @@ stargazer::stargazer(summary = FALSE, type = "html")
 &lt;tr&gt;&lt;td style="text-align:left"&gt;6&lt;/td&gt;&lt;td&gt;1&lt;/td&gt;&lt;td&gt;2,032&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;0&lt;/td&gt;&lt;td&gt;54&lt;/td&gt;&lt;td&gt;12&lt;/td&gt;&lt;td&gt;4.742&lt;/td&gt;&lt;td&gt;4.700&lt;/td&gt;&lt;td&gt;1,040&lt;/td&gt;&lt;td&gt;57&lt;/td&gt;&lt;td&gt;11&lt;/td&gt;&lt;td&gt;6.711&lt;/td&gt;&lt;td&gt;19,495&lt;/td&gt;&lt;td&gt;0.692&lt;/td&gt;&lt;td&gt;14&lt;/td&gt;&lt;td&gt;7&lt;/td&gt;&lt;td&gt;7.500&lt;/td&gt;&lt;td&gt;1&lt;/td&gt;&lt;td&gt;33&lt;/td&gt;&lt;td&gt;9.859&lt;/td&gt;&lt;td&gt;1.556&lt;/td&gt;&lt;td&gt;1,089&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td colspan="23" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 ---
+# What model could we construct
+
+--
+
+### Dependent variable
+
+  - inlf (labor participation)
+  
+### Independent variables 
+
+  - Social economic status
+  
+    - educ, age
+  
+  - Kid factors 
+  
+    - kidslt6, kidsge6
+    
+  - location
+  
+    - city
+---
 
 # labor force partipation (inlf) vs other variables (educ, age, ect)
 
@@ -97,17 +111,15 @@ Bivariate analysis
 
 
 ```r
-tab1 &lt;- xtabs(~ kidslt6 + inlf, data = mroz)
+tab1 &lt;- xtabs(~  inlf + kidslt6, data = mroz)
 tab1
 ```
 
 ```
-       inlf
-kidslt6   0   1
-      0 231 375
-      1  72  46
-      2  19   7
-      3   3   0
+    kidslt6
+inlf   0   1   2   3
+   0 231  72  19   3
+   1 375  46   7   0
 ```
 
 ```r
@@ -157,6 +169,7 @@ X-squared = 4.9471, df = 8, p-value = 0.7632
 
 # Multiple logistic regression 
 
+### Model 1
 
 .pull-left[
 
@@ -164,28 +177,21 @@ X-squared = 4.9471, df = 8, p-value = 0.7632
 ```
 
 Call:
-glm(formula = inlf ~ educ + age + kidslt6 + kidsge6, family = "binomial", 
-    data = mroz)
-
-Deviance Residuals: 
-    Min       1Q   Median       3Q      Max  
--2.1101  -1.1484   0.6781   0.9856   2.2528  
+glm(formula = inlf ~ educ + age, family = "binomial", data = mroz)
 
 Coefficients:
             Estimate Std. Error z value Pr(&gt;|z|)    
-*(Intercept)  1.03685    0.77012   1.346    0.178    
-*educ         0.19792    0.03733   5.302 1.14e-07 ***
-*age         -0.06338    0.01246  -5.086 3.66e-07 ***
-*kidslt6     -1.47001    0.19493  -7.541 4.65e-14 ***
-*kidsge6     -0.09409    0.06660  -1.413    0.158    
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+(Intercept) -1.13220    0.61437  -1.843   0.0654 .  
+educ         0.16812    0.03489   4.819 1.44e-06 ***
+*age         -0.01522    0.00937  -1.624   0.1043    
+*---
+*Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 (Dispersion parameter for binomial family taken to be 1)
 
-    Null deviance: 1029.75  on 752  degrees of freedom
-Residual deviance:  930.08  on 748  degrees of freedom
-AIC: 940.08
+    Null deviance: 1029.7  on 752  degrees of freedom
+Residual deviance: 1000.1  on 750  degrees of freedom
+AIC: 1006.1
 
 Number of Fisher Scoring iterations: 4
 ```
@@ -195,7 +201,7 @@ Number of Fisher Scoring iterations: 4
 
 ```r
 #options(scipen=999)
-logm1 &lt;- glm(inlf ~ educ + age + kidslt6 + kidsge6, 
+logm1 &lt;- glm(inlf ~ educ + age, 
              data = mroz, family = "binomial")
 summary(logm1)
 ```
@@ -207,8 +213,8 @@ exp(coef(logm1))
 ```
 
 ```
-(Intercept)        educ         age     kidslt6     kidsge6 
-  2.8203137   1.2188678   0.9385858   0.2299238   0.9102043 
+(Intercept)        educ         age 
+  0.3223239   1.1830821   0.9848961 
 ```
 
 ```r
@@ -217,107 +223,83 @@ confint(logm1)
 
 ```
                   2.5 %      97.5 %
-(Intercept) -0.46923038  2.55367895
-educ         0.12607012  0.27264082
-age         -0.08818817 -0.03928145
-kidslt6     -1.86403440 -1.09891959
-kidsge6     -0.22535150  0.03620090
+(Intercept) -2.34577531 0.065479537
+educ         0.10079528 0.237786266
+age         -0.03363799 0.003126771
 ```
 ]
 ---
 
-# Polynomial term
+# Model 2
 
-`inlf` and `exper`
+`inlf` and social economic status and kid factor
 
 
 ```r
-logm2 &lt;- glm(inlf ~ educ + age + kidslt6 + kidsge6 + exper + I(exper^2), 
-             data = mroz, family = "binomial")
+logm2 &lt;- glm(inlf ~ educ + age + kidslt6 + kidsge6, data = mroz, family = "binomial")
 summary(logm2)
 ```
 
 ```
 
 Call:
-glm(formula = inlf ~ educ + age + kidslt6 + kidsge6 + exper + 
-    I(exper^2), family = "binomial", data = mroz)
-
-Deviance Residuals: 
-    Min       1Q   Median       3Q      Max  
--2.1765  -0.9177   0.4561   0.8635   2.1897  
+glm(formula = inlf ~ educ + age + kidslt6 + kidsge6, family = "binomial", 
+    data = mroz)
 
 Coefficients:
-             Estimate Std. Error z value Pr(&gt;|z|)    
-(Intercept)  0.655229   0.848897   0.772  0.44020    
-educ         0.183817   0.040353   4.555 5.23e-06 ***
-age         -0.093873   0.014352  -6.541 6.13e-11 ***
-kidslt6     -1.424937   0.201669  -7.066 1.60e-12 ***
-kidsge6      0.049493   0.074132   0.668  0.50437    
-exper        0.209716   0.031970   6.560 5.39e-11 ***
-I(exper^2)  -0.003067   0.001010  -3.035  0.00241 ** 
+            Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)  1.03685    0.77012   1.346    0.178    
+educ         0.19792    0.03733   5.302 1.14e-07 ***
+age         -0.06338    0.01246  -5.086 3.66e-07 ***
+kidslt6     -1.47001    0.19493  -7.541 4.65e-14 ***
+kidsge6     -0.09409    0.06660  -1.413    0.158    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 (Dispersion parameter for binomial family taken to be 1)
 
     Null deviance: 1029.75  on 752  degrees of freedom
-Residual deviance:  810.21  on 746  degrees of freedom
-AIC: 824.21
+Residual deviance:  930.08  on 748  degrees of freedom
+AIC: 940.08
 
 Number of Fisher Scoring iterations: 4
 ```
 
 ---
 
-# Interaction term
+# Model 3: adding location factor
 
-Does `age` and `education` interact
-
-.pull-left[
 
 ```r
-logm3 &lt;- glm(inlf ~ educ + age + I(educ*age) + kidslt6 
-             + kidsge6 + exper + I(exper^2), 
-             data = mroz, family = "binomial")
+logm3 &lt;- glm(inlf ~ educ + age + kidslt6 + kidsge6 + factor(city), data = mroz, family = "binomial")
 summary(logm3)
 ```
-]
-.pull-right[
 
 ```
 
 Call:
-glm(formula = inlf ~ educ + age + I(educ * age) + kidslt6 + kidsge6 + 
-    exper + I(exper^2), family = "binomial", data = mroz)
-
-Deviance Residuals: 
-    Min       1Q   Median       3Q      Max  
--2.1763  -0.9173   0.4544   0.8633   2.1894  
+glm(formula = inlf ~ educ + age + kidslt6 + kidsge6 + factor(city), 
+    family = "binomial", data = mroz)
 
 Coefficients:
-                Estimate Std. Error z value Pr(&gt;|z|)    
-(Intercept)    0.2624717  2.7902830   0.094  0.92506    
-educ           0.2156453  0.2192281   0.984  0.32528    
-age           -0.0849205  0.0622253  -1.365  0.17234    
-I(educ * age) -0.0007285  0.0049287  -0.148  0.88250    
-kidslt6       -1.4302941  0.2052115  -6.970 3.17e-12 ***
-kidsge6        0.0511931  0.0750480   0.682  0.49515    
-exper          0.2096605  0.0319605   6.560 5.38e-11 ***
-I(exper^2)    -0.0030670  0.0010097  -3.037  0.00239 ** 
+              Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)    1.00755    0.77104   1.307    0.191    
+educ           0.20364    0.03797   5.363 8.16e-08 ***
+age           -0.06217    0.01252  -4.965 6.86e-07 ***
+kidslt6       -1.46948    0.19477  -7.545 4.54e-14 ***
+kidsge6       -0.09137    0.06669  -1.370    0.171    
+factor(city)1 -0.14845    0.16863  -0.880    0.379    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 (Dispersion parameter for binomial family taken to be 1)
 
-    Null deviance: 1029.75  on 752  degrees of freedom
-Residual deviance:  810.18  on 745  degrees of freedom
-AIC: 826.18
+    Null deviance: 1029.7  on 752  degrees of freedom
+Residual deviance:  929.3  on 747  degrees of freedom
+AIC: 941.3
 
 Number of Fisher Scoring iterations: 4
 ```
-
-]
 ---
 
 # Submodel
@@ -325,18 +307,19 @@ Number of Fisher Scoring iterations: 4
 
 
 ```r
-lmtest::lrtest(logm2, logm3)
+lmtest::lrtest(logm1, logm2)
 ```
 
 ```
 Likelihood ratio test
 
-Model 1: inlf ~ educ + age + kidslt6 + kidsge6 + exper + I(exper^2)
-Model 2: inlf ~ educ + age + I(educ * age) + kidslt6 + kidsge6 + exper + 
-    I(exper^2)
-  #Df  LogLik Df  Chisq Pr(&gt;Chisq)
-1   7 -405.10                     
-2   8 -405.09  1 0.0218     0.8825
+Model 1: inlf ~ educ + age
+Model 2: inlf ~ educ + age + kidslt6 + kidsge6
+  #Df  LogLik Df  Chisq Pr(&gt;Chisq)    
+1   3 -500.03                         
+2   5 -465.04  2 69.971  6.398e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
 
 ```r
@@ -346,12 +329,11 @@ lmtest::lrtest(logm1, logm3)
 ```
 Likelihood ratio test
 
-Model 1: inlf ~ educ + age + kidslt6 + kidsge6
-Model 2: inlf ~ educ + age + I(educ * age) + kidslt6 + kidsge6 + exper + 
-    I(exper^2)
-  #Df  LogLik Df Chisq Pr(&gt;Chisq)    
-1   5 -465.04                        
-2   8 -405.09  3 119.9  &lt; 2.2e-16 ***
+Model 1: inlf ~ educ + age
+Model 2: inlf ~ educ + age + kidslt6 + kidsge6 + factor(city)
+  #Df  LogLik Df  Chisq Pr(&gt;Chisq)    
+1   3 -500.03                         
+2   6 -464.65  3 70.748  2.951e-15 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
@@ -366,20 +348,19 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 &lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td colspan="3"&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;Model 1&lt;/td&gt;&lt;td&gt;Model 2&lt;/td&gt;&lt;td&gt;Model 3&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;(1)&lt;/td&gt;&lt;td&gt;(2)&lt;/td&gt;&lt;td&gt;(3)&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td colspan="4" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;educ&lt;/td&gt;&lt;td&gt;0.198&lt;sup&gt;***&lt;/sup&gt; (0.037)&lt;/td&gt;&lt;td&gt;0.184&lt;sup&gt;***&lt;/sup&gt; (0.040)&lt;/td&gt;&lt;td&gt;0.216 (0.219)&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td style="text-align:left"&gt;age&lt;/td&gt;&lt;td&gt;-0.063&lt;sup&gt;***&lt;/sup&gt; (0.012)&lt;/td&gt;&lt;td&gt;-0.094&lt;sup&gt;***&lt;/sup&gt; (0.014)&lt;/td&gt;&lt;td&gt;-0.085 (0.062)&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td style="text-align:left"&gt;I(educ * age)&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;-0.001 (0.005)&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td style="text-align:left"&gt;kidslt6&lt;/td&gt;&lt;td&gt;-1.470&lt;sup&gt;***&lt;/sup&gt; (0.195)&lt;/td&gt;&lt;td&gt;-1.425&lt;sup&gt;***&lt;/sup&gt; (0.202)&lt;/td&gt;&lt;td&gt;-1.430&lt;sup&gt;***&lt;/sup&gt; (0.205)&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td style="text-align:left"&gt;kidsge6&lt;/td&gt;&lt;td&gt;-0.094 (0.067)&lt;/td&gt;&lt;td&gt;0.049 (0.074)&lt;/td&gt;&lt;td&gt;0.051 (0.075)&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td style="text-align:left"&gt;exper&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;0.210&lt;sup&gt;***&lt;/sup&gt; (0.032)&lt;/td&gt;&lt;td&gt;0.210&lt;sup&gt;***&lt;/sup&gt; (0.032)&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td style="text-align:left"&gt;I(exper2)&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;-0.003&lt;sup&gt;**&lt;/sup&gt; (0.001)&lt;/td&gt;&lt;td&gt;-0.003&lt;sup&gt;**&lt;/sup&gt; (0.001)&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td style="text-align:left"&gt;Constant&lt;/td&gt;&lt;td&gt;1.037 (0.770)&lt;/td&gt;&lt;td&gt;0.655 (0.849)&lt;/td&gt;&lt;td&gt;0.262 (2.790)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="4" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;educ&lt;/td&gt;&lt;td&gt;0.168&lt;sup&gt;***&lt;/sup&gt; (0.035)&lt;/td&gt;&lt;td&gt;0.198&lt;sup&gt;***&lt;/sup&gt; (0.037)&lt;/td&gt;&lt;td&gt;0.204&lt;sup&gt;***&lt;/sup&gt; (0.038)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;age&lt;/td&gt;&lt;td&gt;-0.015 (0.009)&lt;/td&gt;&lt;td&gt;-0.063&lt;sup&gt;***&lt;/sup&gt; (0.012)&lt;/td&gt;&lt;td&gt;-0.062&lt;sup&gt;***&lt;/sup&gt; (0.013)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;kidslt6&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;-1.470&lt;sup&gt;***&lt;/sup&gt; (0.195)&lt;/td&gt;&lt;td&gt;-1.469&lt;sup&gt;***&lt;/sup&gt; (0.195)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;kidsge6&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;-0.094 (0.067)&lt;/td&gt;&lt;td&gt;-0.091 (0.067)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;factor(city)1&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;-0.148 (0.169)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;Constant&lt;/td&gt;&lt;td&gt;-1.132 (0.614)&lt;/td&gt;&lt;td&gt;1.037 (0.770)&lt;/td&gt;&lt;td&gt;1.008 (0.771)&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td colspan="4" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;Observations&lt;/td&gt;&lt;td&gt;753&lt;/td&gt;&lt;td&gt;753&lt;/td&gt;&lt;td&gt;753&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td style="text-align:left"&gt;Log Likelihood&lt;/td&gt;&lt;td&gt;-465.040&lt;/td&gt;&lt;td&gt;-405.103&lt;/td&gt;&lt;td&gt;-405.092&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td style="text-align:left"&gt;Akaike Inf. Crit.&lt;/td&gt;&lt;td&gt;940.080&lt;/td&gt;&lt;td&gt;824.206&lt;/td&gt;&lt;td&gt;826.184&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;Log Likelihood&lt;/td&gt;&lt;td&gt;-500.025&lt;/td&gt;&lt;td&gt;-465.040&lt;/td&gt;&lt;td&gt;-464.651&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;Akaike Inf. Crit.&lt;/td&gt;&lt;td&gt;1,006.050&lt;/td&gt;&lt;td&gt;940.080&lt;/td&gt;&lt;td&gt;941.302&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td colspan="4" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;em&gt;Note:&lt;/em&gt;&lt;/td&gt;&lt;td colspan="3" style="text-align:right"&gt;&lt;sup&gt;*&lt;/sup&gt;p&lt;0.05; &lt;sup&gt;**&lt;/sup&gt;p&lt;0.01; &lt;sup&gt;***&lt;/sup&gt;p&lt;0.001&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;
 ---
+exclude: TRUE
 # Prediction
 
 
@@ -395,8 +376,8 @@ tab3
 ```
     inlfpred
 inlf   0   1
-   0 206 119
-   1  80 348
+   0 150 175
+   1  81 347
 ```
 
 ```r
@@ -408,13 +389,13 @@ mcnemar.test(tab3)
 	McNemar's Chi-squared test with continuity correction
 
 data:  tab3
-McNemar's chi-squared = 7.2563, df = 1, p-value = 0.007065
+McNemar's chi-squared = 33.785, df = 1, p-value = 6.155e-09
 ```
 ---
 
 class: center middle inverse 
 
-# Review a journal article
+# Write a journal article
 
 ---
 
